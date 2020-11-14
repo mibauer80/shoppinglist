@@ -44,6 +44,7 @@
           <v-container fluid>
      
       <router-view></router-view>
+
     </v-container>
     </v-main>
     
@@ -51,15 +52,12 @@
 </template>
 
 <script>
-
-
-export default {
-  name: 'App',
-
-  
-
-  data: () => ({
-    //
-  }),
-};
+import { mapGetters } from 'vuex';
+  export default {
+    name: 'App',
+    created() {
+    this.$store.dispatch('getItems');
+  },
+computed: mapGetters(['items'])
+  }
 </script>
