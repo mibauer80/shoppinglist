@@ -57,6 +57,7 @@ import { mapGetters } from 'vuex';
     name: 'App',
     created() {
     this.$store.dispatch('getItems');
+    this.$store.dispatch('getPos');
   },
 computed: mapGetters(['items'])
   }
