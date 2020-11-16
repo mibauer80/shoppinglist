@@ -9,7 +9,13 @@ export default new Vuex.Store({
   state: {
     items: [],
     pos: [],
-    messages: []
+    messages: [],
+    modal: {
+        display:false,
+        title:'',
+        text:'',
+        option: []
+    }
 },
 mutations: {
     UPDATE_ITEMS(state, payload) {
@@ -19,16 +25,30 @@ mutations: {
         state.pos = payload;
     },
     ADD_MESSAGE(state, payload) {    
-        var types = {1: 'success', 2: 'warning', 9: 'error'};
+        var types = {1: 'success', 2: 'warning', 3: 'warning', 9: 'error'};
         var typeCode = payload.code.toString().substring(0,1);
         var type = types[typeCode];
+        var messageCodes = [101,102,103];
+        if (messageCodes.includes(payload.code)) {
+        state.modal = {};        
         state.messages.push({...payload, 'ts':  new Date().getTime(), 'type': type});
+        } else {        
+        var messageText =  payload.messages[0];
+        state.modal = {display:true, title: 'Eingabefehler', text: messageText, options: payload.options};
+        }
     },
     DELETE_MESSAGE(state, payload) {
-        var index = state.messages.findIndex(m => m.ts == payload.ts);
-        console.log('delete index: ' + index);
+        var index = state.messages.findIndex(m => m.ts == payload.ts); 
         state.messages.splice(index, 1);
-  }
+  },
+  DELETE_MODAL(state) { 
+    state.modal = {
+        display:false,
+        title:'',
+        text:'',
+        option:[]
+    };
+}
 },
 actions: {
     getItems({
@@ -54,6 +74,7 @@ actions: {
             axios.post('https://proven-aviary-293214.ey.r.appspot.com/items/insert', payload)
                 .then((response) => {                  
                     commit('ADD_MESSAGE', response.data);
+                    this.state.dialog = true;
                 })
         } catch (error) {
             alert(error);
@@ -63,13 +84,19 @@ actions: {
         commit
     }, ts) {
         commit('DELETE_MESSAGE', ts);
+    },
+    deleteModal({
+        commit
+    }) {
+        commit('DELETE_MODAL');
     }
 },
 getters: {
     messages: state => state.messages,
     items: state => state.items,
-    item_names: state => state.items.map(i => i.product_name),
+    itemsCombo: state => state.items.map(function(i){ return {text: i.product_name, value: i.item_id}}),
     itemById: state => id => state.items.find(i => i.id === id),
     pos: state => state.pos,
+    modal: state => state.modal
 }
 });

@@ -12,3 +12,11 @@ new Vue({
   vuetify,
   render: h => h(App)
 }).$mount('#app')
+
+Vue.mixin({
+  methods: {  
+    handle_function_call(function_name, parameters) {
+      this[function_name](parameters)
+  }  
+  }
+})
