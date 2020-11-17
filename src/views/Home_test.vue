@@ -7,7 +7,9 @@
 <v-card-title>{{ps.posName}} </v-card-title>
 <v-img 
                 :src="require('../assets/logo_pos_' + ps.posId + '.svg')"
-                height="70" width="auto"    >
+                
+                max-width="70"
+                >
                 </v-img>
     <v-card-text> 
       <v-row>

@@ -2,10 +2,20 @@
   <div>
    
     
-    <v-combobox v-if="itemsCombo" :items="itemsCombo" v-model="productNameInput">
+    <v-combobox v-if="productsCombo" :items="productsCombo" v-model="productNameInput" auto-select-first @change="selectCatByProd(productNameInput.value)">
 
     </v-combobox>
- <h1>{{ productNameInput }} - {{ posSelect }} - {{ quantity }}</h1>
+ <h1>{{ productNameInput.value }} ({{ category }}) - {{ posSelect }} - {{ quantity }}</h1>
+<p>{{ category }}</p>
+ <v-select
+v-if="categories && typeof selectedCatName === 'undefined' && selectedCatName !== false"
+v-model="category"
+          :items="categories"
+          item-text="title"
+          item-value="id"
+          label="Kategorie"
+        ></v-select>
+        <p v-if="typeof selectedCatName !== 'undefined' && selectedCatName !== false">{{ selectedCatName }}</p>
 
       <v-item-group
       v-if="pos"
@@ -16,8 +26,7 @@
             v-for="(p, i) in pos"
             :key="i"
             cols="6"
-            sm="3"
-            
+            sm="3"            
           >
       <v-item v-slot="{ active, toggle }" :value="p.id">
               <v-img 
@@ -78,10 +87,10 @@
     :disabled="typeof productNameInput === 'undefined' || productNameInput === 'Produkt eingeben'"
   elevation="2"
   x-large
-  @click="addItem(productNameInput.text || productNameInput, 1, posSelect)"
+  @click="addItem(productNameInput.text || productNameInput, category, quantity, posSelect)"
 >Eintragen</v-btn>
 
-      <v-alert v-for="message in messages" :key="message.ts"
+      <v-alert v-for="message in messages" :key="message.ts" :value="alert"
   :type="message.type"
   @click="deleteMessage(message.ts)">
   <span v-for="n in message.messages" :key="n.index">
@@ -98,13 +107,12 @@ v-if="dialog"
         <v-card-title class="headline">
           {{ modal.title }}
         </v-card-title>
-        <v-card-text>{{ modal.text }}</v-card-text>
+        <v-card-text><p v-for="(t, i) in modal.text" :key="i"> {{ t }} </p></v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
                     <v-btn
           v-if="typeof modal.options === 'undefined' || modal.options.length === 0"
-            color="green darken-1"
-            
+            color="green darken-1"            
             @click="deleteModal()"
           >
             Abbrechen
@@ -141,12 +149,15 @@ v-if="dialog"
         data: () => ({
       quantity: 1,      
       productNameInput: 'Produkt eingeben',
-      posSelect: undefined,     
+      posSelect: undefined,    
+      category: undefined,   
+      selectedCatName: false,   
     }),      
     name: 'About',
+
     computed: {
-      ...mapGetters(['items', 'itemsCombo', 'messages', 'pos', 'modal']),       
-      dialog: function(state) {return state.modal.display === true}
+      ...mapGetters(['products', 'items', 'categories', 'productsCombo', 'messages', 'pos', 'modal']),       
+      dialog: function(state) {return state.modal.display === true},      
     },
     methods: {
       call(method, args = []) {
@@ -155,16 +166,60 @@ this[method](...args);
       adjustQuantity(amount) {
         this.quantity += Number(amount);
       },
-      addItem(product, quantity, posId, urgent, saleStart, saleEnd, force) {        
+      addItem(product, catId, quantity, posId, urgent, saleStart, saleEnd, force) {        
         this.$store.dispatch('addItem', {
           'name': product,         
-          'quantity': this.quantity,
+          'quantity': quantity,
+          'catId': catId,
           'posId': posId,
           'urgent:': urgent,
           'saleStart': saleStart,
           'saleEnd': saleEnd,
           'force': force
-        });
+        }).then((response) => {          
+          if (response.resetForm === true) {
+             this.productNameInput = 'Produkt eingeben';
+            this.quantity = 1;
+            this.category = undefined;
+            this.posSelect = undefined;
+          }
+      })
+      },      
+      selectCatByProd(pid) {
+        this.category = undefined;
+        console.log('selectCatByProd(' + pid + ')');
+       var pObject = this.products.find(p => p.id === pid);           
+        if (typeof pObject !== 'undefined') {
+          var cObject = this.categories.find(c => c.id === pObject.cat_id);
+          if (typeof cObject !== 'undefined') {
+          this.selectedCatName = this.categories.find(c => c.id === pObject.cat_id).title;
+          this.category = pObject.cat_id;
+          } else {
+            this.selectedCatName = undefined;
+          }
+      } else {
+        this.selectedCatName = undefined;
+      }
+      console.log('category: ' + this.category);
+      console.log('selectedCatName: ' + this.selectedCatName);
+      },
+            updateItem(listItemId, listId, quantity, posId, urgent, saleStart, saleEnd) {        
+        this.$store.dispatch('updateItem', {
+          'listItemId': listItemId,    
+          'listId': listId,  
+          'quantity': quantity,
+          'posId': posId,
+          'urgent:': urgent,
+          'saleStart': saleStart,
+          'saleEnd': saleEnd          
+        }).then((response) => {          
+          if (response.resetForm === true) {
+             this.productNameInput = 'Produkt eingeben';
+            this.quantity = 1;
+            this.category = undefined;
+            this.posSelect = undefined;
+          }
+      })
       },
         deleteMessage(ts) {        
         this.$store.dispatch('deleteMessage', {

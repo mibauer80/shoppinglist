@@ -57,9 +57,31 @@ import { mapGetters } from 'vuex';
   export default {
     name: 'App',
     created() {
+    this.$store.dispatch('getProducts');
     this.$store.dispatch('getItems');
+    this.$store.dispatch('getCategories');
     this.$store.dispatch('getPos');
   },
-computed: mapGetters(['items'])
+  data () {
+    return {
+      alert: false,
+    }
+  },
+computed: mapGetters(['items']),
+methods: {
+    /*hide_alert: function () {
+      console.log('Hide')
+      // `event` is the native DOM event
+      window.setInterval(() => {
+        this.alert = false;
+        console.log("hide alert after 5 seconds");
+      }, 5000)    
+    }*/
+  },
+  /*mounted: function () {
+    if(alert){
+      this.hide_alert();
+    }
+  }*/
   }
 </script>
