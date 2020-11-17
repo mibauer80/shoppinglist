@@ -1,107 +1,32 @@
 <template>
-  <v-container fluid>
-    <v-data-iterator
-      :items="items"
-      :items-per-page.sync="itemsPerPage"
-      hide-default-footer
+<div>
+  <v-card
+  v-for="(ps, i) in posSorted" :key="i"
+  elevation="2"
+>
+<v-card-title>{{ps.posName}} </v-card-title>
+<v-img 
+                :src="require('../assets/logo_pos_' + ps.posId + '.svg')"
+                height="70" width="auto"    >
+                </v-img>
+    <v-card-text> 
+      <v-row>
+        <v-col>
+      
+      </v-col>
+      <v-col>
+      <v-icon
+      large
+      color="green darken-2"
     >
-      <template v-slot:header>
-        <v-toolbar
-          class="mb-2"
-          color="indigo darken-5"
-          dark
-          flat
-        >
-          <v-toolbar-title>This is a header</v-toolbar-title>
-        </v-toolbar>
-      </template>
-
-      <template v-slot:default="props">
-        <v-row>
-          <v-col
-            v-for="item in props.items"
-            :key="item.name"
-            cols="12"
-            sm="6"
-            md="4"
-            lg="3"
-          >
-            <v-card>
-              <v-card-title class="subheading font-weight-bold">
-                {{ item.name }}
-              </v-card-title>
-
-              <v-divider></v-divider>
-
-              <v-list dense>
-                <v-list-item>
-                  <v-list-item-content>Calories:</v-list-item-content>
-                  <v-list-item-content class="align-end">
-                    {{ item.calories }}
-                  </v-list-item-content>
-                </v-list-item>
-
-                <v-list-item>
-                  <v-list-item-content>Fat:</v-list-item-content>
-                  <v-list-item-content class="align-end">
-                    {{ item.fat }}
-                  </v-list-item-content>
-                </v-list-item>
-
-                <v-list-item>
-                  <v-list-item-content>Carbs:</v-list-item-content>
-                  <v-list-item-content class="align-end">
-                    {{ item.carbs }}
-                  </v-list-item-content>
-                </v-list-item>
-
-                <v-list-item>
-                  <v-list-item-content>Protein:</v-list-item-content>
-                  <v-list-item-content class="align-end">
-                    {{ item.protein }}
-                  </v-list-item-content>
-                </v-list-item>
-
-                <v-list-item>
-                  <v-list-item-content>Sodium:</v-list-item-content>
-                  <v-list-item-content class="align-end">
-                    {{ item.sodium }}
-                  </v-list-item-content>
-                </v-list-item>
-
-                <v-list-item>
-                  <v-list-item-content>Calcium:</v-list-item-content>
-                  <v-list-item-content class="align-end">
-                    {{ item.calcium }}
-                  </v-list-item-content>
-                </v-list-item>
-
-                <v-list-item>
-                  <v-list-item-content>Iron:</v-list-item-content>
-                  <v-list-item-content class="align-end">
-                    {{ item.iron }}
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list>
-            </v-card>
-          </v-col>
-        </v-row>
-      </template>
-
-      <template v-slot:footer>
-        <v-toolbar
-          class="mt-2"
-          color="indigo"
-          dark
-          flat
-        >
-          <v-toolbar-title class="subheading">
-            This is a footer
-          </v-toolbar-title>
-        </v-toolbar>
-      </template>
-    </v-data-iterator>
-  </v-container>
+      mdi-cart
+    </v-icon>{{ps.itemCount}}
+    </v-col>
+    </v-row>
+    </v-card-text>
+     
+</v-card>
+</div>
 </template>
 
 <script>
@@ -114,7 +39,24 @@
 export default {
   
   name: 'Home',
-computed: mapGetters(['items', 'item_names']),
+computed: { ...mapGetters(['items', 'pos']),
+posCount: function() {
+    var output = [];
+    for (var i in this.pos) {
+      var p = this.pos[i];      
+      
+      var ic = this.items.filter(i => i.pos_id === p.id).length;
+      var sc = this.items.filter(i => i.pos_id === p.id && i.sale_end != null).length;
+      var uc = this.items.filter(i => i.pos_id === p.id && i.urgent === 2).length;
+      output.push({'posId': p.id, 'posName': p.name, 'itemCount': ic, 'saleCount': sc, 'urgentCount': uc})
+    }
+    return output;
+  },
+  posSorted: function() {
+    return this.posCount.slice().sort((a,b) => {return b.itemCount - a.itemCount});
+  }
+
+}
 
 }
 </script>
