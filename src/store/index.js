@@ -11,15 +11,8 @@ export default new Vuex.Store({
         items: [],
         categories: [],
         pos: [],
-        messages: [],
-        modal: {
-            display: false,
-            title: '',
-            text: '',
-            option: []
-        },
-        alert: false,
     },
+    
     mutations: {
         UPDATE_PRODUCTS(state, payload) {
             state.products = payload;
@@ -33,43 +26,6 @@ export default new Vuex.Store({
         UPDATE_CATEGORIES(state, payload) {
             state.categories = payload;
         },
-        ADD_MESSAGE(state, payload) {
-            var types = {
-                1: 'success',
-                2: 'warning',
-                3: 'warning',
-                9: 'error'
-            };
-            var typeCode = payload.code.toString().substring(0, 1);
-            var type = types[typeCode];            
-            if (/^1\d\d$/.test(payload.code)) {
-                state.modal = {};
-                state.messages.push({
-                    ...payload,
-                    'ts': new Date().getTime(),
-                    'type': type
-                });
-            } else {
-                state.modal = {
-                    display: true,
-                    title: 'Eingabefehler',
-                    text: payload.messages,
-                    options: payload.options
-                };
-            }
-        },
-        DELETE_MESSAGE(state, payload) {
-            var index = state.messages.findIndex(m => m.ts == payload.ts);
-            state.messages.splice(index, 1);
-        },
-        DELETE_MODAL(state) {
-            state.modal = {
-                display: false,
-                title: '',
-                text: '',
-                option: []
-            };
-        }
     },
     actions: {
         getProducts({
@@ -104,34 +60,38 @@ export default new Vuex.Store({
                     commit('UPDATE_CATEGORIES', response.data);
                 })
         },
-        addItem({
-            commit,
+        addItem({          
+            dispatch
+        }, payload) {
+            console.log('axios: ' + JSON.stringify(payload));
+            return new Promise((resolve, reject) => {
+                axios.post('https://proven-aviary-293214.ey.r.appspot.com/items/insert', payload).then(response => {
+                    if (/^1\d\d$/.test(response.data.code)) {
+                    dispatch('getProducts');
+                    dispatch('getItems');
+                    }
+                    var resetForm = /^1\d\d$/.test(response.data.code);
+                    resolve({
+                        ...response.data,
+                        'resetForm': resetForm
+                    })
+                }).catch(error => {
+                    reject(error);
+                })
+            })
+        },
+        updateItem({            
             dispatch
         }, payload) {
             return new Promise((resolve, reject) => {
-                axios.post('https://proven-aviary-293214.ey.r.appspot.com/items/insert', payload).then(response => {
-                    dispatch('getProducts');
-                    dispatch('getItems');
-                    commit('ADD_MESSAGE', response.data);
-                    this.state.dialog = true;
-                    var resetForm = /^1\d\d$/.test(response.data.code);
-                    resolve({
-                        'resetForm': resetForm
-                    })
-                }).catch(error => {
-                    reject(error);
-                })
-            })
-        },
-        updateItem({
-            commit
-        }, payload) {
-            return new Promise((resolve, reject) => {
                 axios.post('https://proven-aviary-293214.ey.r.appspot.com/items/update', payload).then((response) => {
-                    commit('ADD_MESSAGE', response.data);
-                    this.state.dialog = true;
+                    if (/^1\d\d$/.test(response.data.code)) {
+                        dispatch('getProducts');
+                        dispatch('getItems');
+                        }
                     var resetForm = /^1\d\d$/.test(response.data.code);
                     resolve({
+                        ...response.data,
                         'resetForm': resetForm
                     })
                 }).catch(error => {
@@ -139,19 +99,25 @@ export default new Vuex.Store({
                 })
             })
         },
-        deleteMessage({
-            commit
-        }, ts) {
-            commit('DELETE_MESSAGE', ts);
+        cartItem({            
+            dispatch
+        }, payload) {
+            console.log('axios: ' + JSON.stringify(payload));
+            return new Promise((resolve, reject) => {
+                axios.post('https://proven-aviary-293214.ey.r.appspot.com/items/cart', payload).then((response) => {
+                    if (/^1\d\d$/.test(response.data.code)) {                       
+                        dispatch('getItems');
+                        }                 
+                    resolve({
+                        ...response.data,                       
+                    })
+                }).catch(error => {
+                    reject(error);
+                })
+            })
         },
-        deleteModal({
-            commit
-        }) {
-            commit('DELETE_MODAL');
-        }
     },
     getters: {
-        messages: state => state.messages,
         products: state => state.products,
         items: state => state.items,
         productsCombo: state => state.products.map(function (p) {
@@ -162,7 +128,6 @@ export default new Vuex.Store({
         }),
         itemById: state => id => state.items.find(i => i.id === id),
         pos: state => state.pos,
-        categories: state => state.categories,
-        modal: state => state.modal
+        categories: state => state.categories,  
     }
 });
