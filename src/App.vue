@@ -54,4 +54,10 @@
 
     }
   }
-</script>
+  </script>
+  
+  <style>
+    .centered-input input {
+      text-align: center
+    }
+</style>

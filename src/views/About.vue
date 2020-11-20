@@ -3,8 +3,10 @@
 
 
     <v-combobox v-if="productsCombo" :items="productsCombo" v-model="productNameInput" auto-select-first
-      @change="selectCatByProd(productNameInput.value)">
-
+      @change="selectCatByProd(productNameInput.value)"
+      menu-prop="{ 'closeOnClick': true, 'closeOnContentClick': true, 'disableKeys': false, 'openOnClick': true, 'maxHeight': 304 }"
+      @keyup.enter="comboEnter"     
+      >
     </v-combobox>
 
 
@@ -19,9 +21,7 @@
                     </v-chip>
 </v-col>
 </v-row>
-    <v-item-group v-if="pos" v-model="posSelect" align="center" class="d-flex justify-space-between">
-
-        
+    <v-item-group v-if="pos" v-model="posSelect" align="center" class="d-flex justify-space-between">       
           <v-item v-for="(p, i) in pos" :key="i" v-slot="{ active, toggle }" :value="p.id" class="flex-grow-0">
             <v-img :src="require('../assets/logo_pos_' + p.id + 'n.svg')" max-width="100" width="20%" aspect-ratio="1" :class="{ 'faded': !active }"
               @click="toggle">
@@ -35,9 +35,9 @@
       <v-menu            
             v-model="dateMenu"
             :close-on-content-click="false"
-            :nudge-right="45"
+           
             transition="scale-transition"
-            offset-x 
+            offset-y 
             max-width="290px"
             min-width="290px"
           >
@@ -108,7 +108,8 @@
         </v-btn>
       </v-col>
       <v-col cols="3" align="center">       
-            <v-text-field            
+            <v-text-field         
+            class="centered-input"   
             style="margin-bottom:-30px;"
             :value="quantity"
             label="Anzahl"  
@@ -129,7 +130,7 @@
     <v-btn 
     color="primary"
     class="mt-4"
-      :disabled="typeof productNameInput === 'undefined' || productNameInput === 'Produkt eingeben' || loading_itemSubmit === true"
+      :disabled="typeof productNameInput === 'undefined' || productNameInput === 'Produkt eingeben' || typeof category === 'undefined' || loading_itemSubmit === true"
       :loading="loading_itemSubmit" elevation="2" x-large
       @click="addItem(productNameInput.text || productNameInput, category, quantity, posSelect, urgentData, saleDateStart, saleDateEnd)">Eintragen
     </v-btn>
@@ -222,13 +223,13 @@
         return typeof this.urgentSelect === 'undefined' ? 1 : this.urgentSelect
       },
       saleDateStart() {
-        return typeof this.saleDateRange[0] === 'undefined' ? null : this.saleDateRange[0];
+        return this.saleDateRange[0];
       },
       saleDateStartDisplay() {
-        return typeof this.saleDateRange[0] === 'undefined' ? null : this.saleDateRange[0].split('-');
+        return this.saleDateRange[0].split('-');
       },
       saleDateEnd() {
-        return typeof this.saleDateRange[1] === 'undefined' ? null : this.saleDateRange[1];
+        return this.saleDateRange[1];
       },
       minSaleDate() {
         return new Date().toISOString().slice(0, 10);
@@ -239,7 +240,10 @@
         this[method](...args);
       },
       adjustQuantity(amount) {
-      this.quantity += Number(amount);
+        var r = this.quantity + Number(amount);
+        if (r > 0  && r <= 20) {
+      this.quantity = r;
+        }
     },      
       addItem(product, catId, quantity, posId, urgent, saleStart, saleEnd, force) {
         this.loading_itemSubmit = true;
@@ -317,7 +321,11 @@
     s.setDate(d.getDate()+5);    
         this.saleDateRange=[d.toISOString().slice(0, 10), s.toISOString().slice(0, 10)];
         }
+      },
+      comboEnter() {        
+        document.querySelector('.v-btn').focus();
       }
     }
   }
 </script>
+
