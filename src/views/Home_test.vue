@@ -29,7 +29,6 @@
                       Notstand {{ ps.urgentCount }}
                     </v-chip>
                     <v-chip class="mr-2 my-2 pa-2" label color="lime" outlined>
-
                       <v-icon class="mr-4">
                         mdi-alarm-light-outline
                       </v-icon>
@@ -51,7 +50,7 @@
               </div>
 
               <v-avatar class="ma-3" size="100" tile>
-                <v-img :src="require('../assets/logo_pos_' + ps.posId + 'n.svg')"></v-img>
+                <v-img v-if="ps.posId>0" :src="require('../assets/logo_pos_' + ps.posId + 'n.svg')"></v-img>
               </v-avatar>
             </div>
           </v-card>
@@ -70,6 +69,18 @@
     name: 'Home',
     computed: {
       ...mapGetters(['items', 'pos']),
+      posNullCount: function() {          
+          var ic = this.items.filter(i => i.pos_id === null).length;       
+          var uc = this.items.filter(i => i.pos_id === null && i.urgent === 2).length;
+                    var output = {
+            'posId': null,
+            'posName': 'Allgemeine Einträge',
+            'itemCount': ic,    
+            'saleCount': 0,      
+            'urgentCount': uc
+          };        
+        return output;
+      },
       posCount: function () {
         var output = [];
         for (var i in this.pos) {
@@ -88,9 +99,15 @@
         return output;
       },
       posSorted: function () {
-        return this.posCount.slice().sort((a, b) => {
+        var sortedPos = this.posCount.slice().sort((a, b) => {
           return b.itemCount - a.itemCount
         });
+        console.log('SORTEDPOS: ' + JSON.stringify(sortedPos));
+        console.log('NULLPOS: ' + JSON.stringify(this.posNullCount));
+            var output = [ this.posNullCount, ...sortedPos];
+console.log('JOINED: ' + JSON.stringify(output));   
+        
+        return output;
       }
     }
   }
