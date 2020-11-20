@@ -50,8 +50,6 @@
     },
     computed: mapGetters(['items']),
     methods: {
-
-
     }
   }
   </script>
@@ -59,5 +57,5 @@
   <style>
     .centered-input input {
       text-align: center
-    }
+    } 
 </style>

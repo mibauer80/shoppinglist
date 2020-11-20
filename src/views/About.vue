@@ -134,12 +134,35 @@
       :loading="loading_itemSubmit" elevation="2" x-large
       @click="addItem(productNameInput.text || productNameInput, category, quantity, posSelect, urgentData, saleDateStart, saleDateEnd)">Eintragen
     </v-btn>
-
+<!--
     <v-alert :value="alert.status" transition="scale-transition" :type="alert.type" @click="deleteAlert()">
       <span v-for="c in alert.content" :key="c.index">
         {{ c }}
       </span>
     </v-alert>
+-->
+        <v-snackbar
+      v-model="alert.status"
+      timeout="5000"
+      :centered="true"
+      :absolute="true"
+      color="success"
+    >
+     <span v-for="c in alert.content" :key="c.index">
+        {{ c }}
+      </span>
+
+      <template v-slot:action="{ attrs }">
+        <v-btn
+          color="white"
+          text
+          v-bind="attrs"
+          @click="alert.status = false"
+          >
+          <v-icon>mdi-close-circle</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
 
     <v-dialog :value="modal.status">
       <v-card>
@@ -266,6 +289,8 @@
             this.quantity = 1;
             this.category = undefined;
             this.posSelect = undefined;
+            this.urgentSelect = undefined;
+            this.saleDateRange = [];
           } else {
             this.pushModal('failure', response);
           }
@@ -308,6 +333,7 @@
             this.category = undefined;
             this.posSelect = undefined;
             this.urgentSelect = undefined;
+            this.saleDateRange = [];
           } else {
             this.pushModal('failure', response);
           }
