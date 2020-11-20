@@ -17,7 +17,18 @@ module.exports = {
       // ...other Workbox options...
     },
     manifestOptions: {
-
+      icons: [
+        {
+            'src': 'src/assets/icons/android-chrome-192x192.png',
+            'sizes': '192x192',
+            'type': 'image/png',
+        },
+        {
+            'src': 'src/assets/icons/android-chrome-512x512.png',
+            'sizes': '512x512',
+            'type': 'image/png',
+        },
+    ],
     },
     manifestPath: 'manifest.json',
     iconPaths: {
