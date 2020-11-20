@@ -2,7 +2,7 @@ module.exports = {
   "transpileDependencies": [
     "vuetify"
   ],
-  PWA: {
+  pwa: {
     name: 'Shopping List',
     themeColor: '#1976d2',
     msTileColor: '#1976d2',
