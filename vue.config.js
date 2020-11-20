@@ -19,12 +19,12 @@ module.exports = {
     manifestOptions: {
       icons: [
         {
-            'src': 'src/assets/icons/android-chrome-192x192.png',
+            'src': './img/icons/android-chrome-192x192.png',
             'sizes': '192x192',
             'type': 'image/png',
         },
         {
-            'src': 'src/assets/icons/android-chrome-512x512.png',
+            'src': './img/icons/android-chrome-512x512.png',
             'sizes': '512x512',
             'type': 'image/png',
         },
@@ -32,11 +32,11 @@ module.exports = {
     },
     manifestPath: 'manifest.json',
     iconPaths: {
-      favicon32: 'src/assets/icons/favicon-32x32.png',
-      favicon16: 'src/assets/icons/favicon-16x16.png',
-      appleTouchIcon: 'src/assets/icons/favicon-128x128.png',
+      favicon32: 'img/icons/favicon-32x32.png',
+      favicon16: 'img/icons/favicon-16x16.png',
+      appleTouchIcon: 'img/icons/favicon-128x128.png',
       maskIcon: null,
-      msTileImage: 'src/assets/icons/favicon-128x128.png'
+      msTileImage: 'img/icons/favicon-128x128.png'
     }
   }
 }
