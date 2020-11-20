@@ -2,10 +2,10 @@ module.exports = {
   "transpileDependencies": [
     "vuetify"
   ],
-  pwa: {
+  PWA: {
     name: 'Shopping List',
-    themeColor: '#4DBA87',
-    msTileColor: '#000000',
+    themeColor: '#1976d2',
+    msTileColor: '#1976d2',
     appleMobileWebAppCapable: 'yes',
     appleMobileWebAppStatusBarStyle: 'black',
 
@@ -13,7 +13,7 @@ module.exports = {
     workboxPluginMode: 'InjectManifest',
     workboxOptions: {
       // swSrc is required in InjectManifest mode.
-      swSrc: 'dev/sw.js',
+      swSrc: 'src/service-worker.js',
       // ...other Workbox options...
     },
     manifestOptions: {
