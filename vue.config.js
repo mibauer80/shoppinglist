@@ -17,11 +17,7 @@ module.exports = {
       // ...other Workbox options...
     },
     manifestOptions: {
-      name: this.pwa.name,
-short_name: this.pwa.name,
-start_url: '.',
-display: 'standalone',
-theme_color: this.pwa.themeColor,
+
     },
     manifestPath: 'manifest.json',
     iconPaths: {
