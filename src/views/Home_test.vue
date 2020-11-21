@@ -6,42 +6,41 @@
           <v-card>
             <div class="d-flex flex-no-wrap justify-space-between">
               <div>
-                <v-card-title class="headline" v-text="ps.posName"></v-card-title>
-                <v-card-text>
-                  <div class="text-center">
-                    <v-chip class="mr-2 my-2 pa-2" label color="light-blue" outlined>
-                      <v-icon class="mr-4">
+                <v-card-title class="headline pt-1 pb-1" v-text="ps.posName"></v-card-title>
+                <v-card-text class="pb-0">
+                                      <v-chip class="mr-2 my-2 pa-2" label color="primary" outlined>
+                      <v-icon class="mr-2">
                         mdi-cart
                       </v-icon>
-                      Total {{ ps.itemCount }}
+                      <span class="chip-text-responsive">Total:</span>{{ ps.itemCount }}
                     </v-chip>
-                    <v-chip class="mr-2 my-2 pa-2" label color="red darken-4" outlined>
-                      <v-icon class="mr-4">
+                    <v-chip class="mr-2 my-2 pa-2" label :color="ps.urgentColor + ' white--text'" outlined >
+                      <v-icon class="mr-2">
                         mdi-alarm-light-outline
                       </v-icon>
-                      Notstand {{ ps.urgentCount }}
+                      <span class="chip-text-responsive">Notstand:</span>{{ ps.urgentCount }}
                     </v-chip>
-                    <v-chip class="mr-2 my-2 pa-2" label color="lime" outlined>
-                      <v-icon class="mr-4">
-                        mdi-alarm-light-outline
+                    <v-chip v-if="ps.posId!=5 && ps.posId!=null" class="mr-2 my-2 pa-2" label :color="ps.saleColor" outlined>
+                      <v-icon class="mr-2">
+                        mdi-sale
                       </v-icon>
-                      Angebote {{ ps.saleCount }}
+                      <span class="chip-text-responsive">Angebote:</span>{{ ps.saleCount }}
                     </v-chip>
-                  </div>
-                </v-card-text>
+                                  </v-card-text>
 
-                <v-card-actions>
-                  <v-btn :disabled="ps.itemCount===0" color="success">
-                    <v-icon left>
-                      mdi-eye
-                    </v-icon>
+                <v-card-actions class="ma-2">
+                  <v-btn :disabled="ps.itemCount===0" color="primary">
+                    
                     Einkaufszettel
+                    <v-icon right>
+                      mdi-format-list-bulleted
+                    </v-icon>
                   </v-btn>
                 </v-card-actions>
               </div>
 
-              <v-avatar class="ma-3" size="100" tile>
-                <v-img v-if="ps.posId>0" :src="require('../assets/logo_pos_' + ps.posId + 'n.svg')">
+              <v-avatar v-if="ps.posId!=5 && ps.posId!=null" class="ma-3" tile width="75" height="75">
+                <v-img  :src="require('../assets/logo_pos_' + ps.posId + 'n.svg')">
                 </v-img>
               </v-avatar>
             </div>
@@ -64,44 +63,37 @@
       show: false
     }),
     computed: {
-      ...mapGetters(['items', 'pos']),
-      posNullCount: function () {
-        var ic = this.items.filter(i => i.pos_id === null).length;
-        var uc = this.items.filter(i => i.pos_id === null && i.urgent === 2).length;
-        var output = {
-          'posId': null,
-          'posName': 'Allgemeine Einträge',
-          'itemCount': ic,
-          'saleCount': 0,
-          'urgentCount': uc
-        };
-        return output;
-      },
+      ...mapGetters(['items', 'pos']),      
       posCount: function () {
         var output = [];
-        for (var i in this.pos) {
-          var p = this.pos[i];
+        var specificPos = this.pos.filter(p => p.id != 6);
+        console.table(specificPos);
+        for (var i in specificPos)  {
+          var p = specificPos[i];
           var ic = this.items.filter(i => i.pos_id === p.id).length;
           var sc = this.items.filter(i => i.pos_id === p.id && i.sale_end != null).length;
+          var scol =  sc > 0 ? 'green accent-4': 'grey';
           var uc = this.items.filter(i => i.pos_id === p.id && i.urgent === 2).length;
+          var ucol =  uc > 0 ? 'red': 'grey';
           output.push({
             'posId': p.id,
             'posName': p.name,
             'itemCount': ic,
             'saleCount': sc,
-            'urgentCount': uc
-          })
+            'saleColor': scol,
+            'urgentCount': uc,
+            'urgentColor': ucol
+          });          
         }
+        console.table(output);
         return output;
       },
       posSorted: function () {
         var sortedPos = this.posCount.slice().sort((a, b) => {
           return b.itemCount - a.itemCount
         });
-        console.log('SORTEDPOS: ' + JSON.stringify(sortedPos));
-        console.log('NULLPOS: ' + JSON.stringify(this.posNullCount));
-        var output = [this.posNullCount, ...sortedPos];
-        return output;
+        console.log('SORTEDPOS: ' + JSON.stringify(sortedPos));       
+        return sortedPos;
       }
     },
     methods: {
