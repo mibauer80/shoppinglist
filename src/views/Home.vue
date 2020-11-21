@@ -34,7 +34,7 @@ data: () => ({
       },
 }),
 computed: {
-  ...mapGetters(['items']),
+  ...mapGetters(['items', 'pos']),
 
 },
 methods: {  

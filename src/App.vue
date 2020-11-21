@@ -15,9 +15,10 @@
       <v-spacer></v-spacer>
 
       <v-btn href="https://github.com/vuetifyjs/vuetify/releases/latest" target="_blank" text>
-        <span class="mr-2">Latest Release</span>
+        <span class="mr-2">{{ this.$route.query.posId}}</span>
         <v-icon>mdi-open-in-new</v-icon>
       </v-btn>
+
     </v-app-bar>
 
     <v-main>
@@ -48,14 +49,26 @@
         alert: false,
       }
     },
-    computed: mapGetters(['items']),
-    methods: {
+    computed: {
+      ...mapGetters(['items', 'pos']),
+
+    },
+    methods: {}
+  }
+</script>
+
+<style>
+  .centered-input input {
+    text-align: center
+  }
+
+  @media (max-width: 600px){
+    .chip-text-responsive {
+      display: none;
     }
   }
-  </script>
-  
-  <style>
-    .centered-input input {
-      text-align: center
-    } 
+
+  .chip-text-responsive {
+    margin-right: 8px
+  }
 </style>
