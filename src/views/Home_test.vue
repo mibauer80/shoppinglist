@@ -7,7 +7,7 @@
             <div class="d-flex flex-no-wrap justify-space-between">
               <div>
                 <v-card-title class="headline pt-1 pb-1" v-text="ps.posName"></v-card-title>
-                <v-card-text class="pb-0">
+                <v-card-text class="pb-0 pr-0">
                                       <v-chip class="mr-2 my-2 pa-2" label color="primary" outlined>
                       <v-icon class="mr-2">
                         mdi-cart
@@ -39,7 +39,7 @@
                 </v-card-actions>
               </div>
 
-              <v-avatar v-if="ps.posId!=5 && ps.posId!=null" class="ma-3" tile width="75" height="75">
+              <v-avatar v-if="ps.posId!=5 && ps.posId!=0" class="ma-3" tile width="70" height="70">
                 <v-img  :src="require('../assets/logo_pos_' + ps.posId + 'n.svg')">
                 </v-img>
               </v-avatar>
@@ -90,7 +90,14 @@
       },
       posSorted: function () {
         var sortedPos = this.posCount.slice().sort((a, b) => {
-          return b.itemCount - a.itemCount
+          if(a.itemCount == b.itemCount) return 0;
+          if (a.posId == 0) return -1;
+  if (b.posId == 0) return 1;
+          if (a.itemCount < b.itemCount)
+      return 1;
+  if (a.itemCount > b.itemCount)
+      return -1;
+  return 0;
         });
         console.log('SORTEDPOS: ' + JSON.stringify(sortedPos));       
         return sortedPos;

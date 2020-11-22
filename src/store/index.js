@@ -18,7 +18,7 @@ export default new Vuex.Store({
             state.products = payload;
         },
         UPDATE_ITEMS(state, payload) {
-            state.items = payload;
+            state.items = payload.map(obj=> ({ ...obj, cartLoading: false, deleteLoading: false }))
         },
         UPDATE_POS(state, payload) {
             state.pos = payload;
@@ -105,6 +105,23 @@ export default new Vuex.Store({
             console.log('axios: ' + JSON.stringify(payload));
             return new Promise((resolve, reject) => {
                 axios.post('https://proven-aviary-293214.ey.r.appspot.com/items/cart', payload).then((response) => {
+                    if (/^1\d\d$/.test(response.data.code)) {                       
+                        dispatch('getItems');
+                        }                 
+                    resolve({
+                        ...response.data,                       
+                    })
+                }).catch(error => {
+                    reject(error);
+                })
+            })
+        },
+        deleteItem({            
+            dispatch
+        }, payload) {
+            console.log('axios: ' + JSON.stringify(payload));
+            return new Promise((resolve, reject) => {
+                axios.post('https://proven-aviary-293214.ey.r.appspot.com/items/delete', payload).then((response) => {
                     if (/^1\d\d$/.test(response.data.code)) {                       
                         dispatch('getItems');
                         }                 

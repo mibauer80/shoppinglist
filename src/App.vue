@@ -70,14 +70,5 @@
 
   .chip-text-responsive {
     margin-right: 8px
-  }
-  .cart-list-item .v-list-item__title, .cart-list-item .v-btn {
-    flex: 0 0 auto!important;    
-  }
-  .cart-list-item .v-list-item, .cart-list-item .v-list-item--link:before, .cart-list-item .v-list-item__title {
-  background-color: none!important;
-  color:black;
-  }
-
-  
+  }  
 </style>
