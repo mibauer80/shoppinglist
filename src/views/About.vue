@@ -292,7 +292,7 @@
             this.urgentSelect = undefined;
             this.saleDateRange = [];
           } else {
-            this.pushModal('failure', response);
+            this.pushModal('failure', { ...response, title: 'Fehler beim Speichern'});
           }
         })
       },
@@ -335,7 +335,7 @@
             this.urgentSelect = undefined;
             this.saleDateRange = [];
           } else {
-            this.pushModal('failure', response);
+            this.pushModal('failure', { ...response, title: 'Fehler beim Speichern'});
           }
         })
       },
