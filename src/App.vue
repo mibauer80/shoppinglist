@@ -36,8 +36,10 @@
   import {
     mapGetters
   } from 'vuex';
+  import mixins from '../mixins/mixin';
   export default {
     name: 'App',
+    mixins: [mixins],
     created() {
       this.$store.dispatch('getProducts');
       this.$store.dispatch('getItems');
