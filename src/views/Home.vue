@@ -1,83 +1,111 @@
 <template>
   <div>
-    <h1>This is the home page</h1>
-        <v-list-item v-for="item in items"
-            :key="item.item_id">
-      <v-list-item-content>
-        <v-list-item-title>{{ item.item_id }} - {{ item.product_name }} ({{ item.pos_name }}) {{ item.urgent }} {{ item.cart_status }}</v-list-item-title>
-        
-          <v-checkbox              
-              :label="item.product_name"
-              :color="item.cart_status===1 ? 'green' : 'grey'"
-              :value="item.cart_status===1"              
-               @click="cartItem(item.item_id, 1, item.cart_status === 1 ? 0: 1)"
-            ></v-checkbox>
-             <v-btn
-      class="mx-2"
-      elevation="0"
-      fab
-      dark      
-      :color="item.loading === true ? 'white' : item.cart_status === 1 ? 'green' : 'primary'"
-      :outlined="item.loading !== true && item.cart_status === 1"
-      :disabled="item.loading === true"
-      @click="cartItem(item.item_id, 1, item.cart_status === 1 ? 0: 1)"
-    >
-              
-                  <v-progress-circular
-                  v-if="item.loading === true"
-      :size="20"
-      color="grey"
-      indeterminate
-    ></v-progress-circular>
-                    
-                    <v-icon v-if="item.cart_status === 1 && item.loading !== true" large>mdi-checkbox-marked</v-icon>
-                    <v-icon v-if="item.cart_status !== 1 && item.loading !== true" large>mdi-cart</v-icon>
-                  </v-btn>       
-      </v-list-item-content>
-    </v-list-item>
+    <v-container>
+      <v-row>
+        <v-col v-for="(ps, i) in posSorted" :key="i" cols="12">
+          <v-card>
+            <div class="d-flex flex-no-wrap justify-space-between">
+              <div>
+                <v-card-title class="headline pt-1 pb-1" v-text="ps.posName"></v-card-title>
+                <v-card-text class="pb-0 pr-0">
+                  <v-chip class="mr-2 my-2 pa-2" label color="primary" outlined>
+                    <v-icon class="mr-2">
+                      mdi-cart
+                    </v-icon>
+                    <span class="chip-text-responsive">Total:</span>{{ ps.itemCount }}
+                  </v-chip>
+                  <v-chip class="mr-2 my-2 pa-2" label :color="ps.urgentColor + ' white--text'" outlined>
+                    <v-icon class="mr-2">
+                      mdi-alarm-light-outline
+                    </v-icon>
+                    <span class="chip-text-responsive">Notstand:</span>{{ ps.urgentCount }}
+                  </v-chip>
+                  <v-chip v-if="ps.posId!=5 && ps.posId!=null" class="mr-2 my-2 pa-2" label :color="ps.saleColor"
+                    outlined>
+                    <v-icon class="mr-2">
+                      mdi-sale
+                    </v-icon>
+                    <span class="chip-text-responsive">Angebote:</span>{{ ps.saleCount }}
+                  </v-chip>
+                </v-card-text>
+
+                <v-card-actions class="ma-2">
+                  <v-btn :disabled="ps.itemCount===0" color="primary">
+
+                    Einkaufszettel
+                    <v-icon right>
+                      mdi-format-list-bulleted
+                    </v-icon>
+                  </v-btn>
+                </v-card-actions>
+              </div>
+
+              <v-avatar v-if="ps.posId!=5 && ps.posId!=0" class="ma-3" tile width="70" height="70">
+                <v-img :src="require('../assets/logo_pos_' + ps.posId + 'n.svg')">
+                </v-img>
+              </v-avatar>
+            </div>
+          </v-card>
+
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
 <script>
- import {
+  import {
     mapGetters
   } from 'vuex'
-// @ is an alias to /src
-
-
-export default {
-  
-name: 'Home',
-data: () => ({
-      quantity: 1,   
-            modal: {
-        status: false,
-        type: undefined,
-        content: [],
-        options: [],
-      },
-}),
-computed: {
-  ...mapGetters(['items', 'pos']),
- 
-},
-methods: {  
-      cartItem(listItemId, listId, cartStatus) {          
-      var ci = this.items.findIndex((i) => { return i.item_id === listItemId;});       
-      this.items[ci].loading = true;
-      this.$store.dispatch('cartItem', {
-        'listItemId': listItemId,
-        'listId': listId,
-        'cartStatus': cartStatus
-      }).then((response) => {
-        if (/^1\d\d$/.test(response.code)) {
-          console.log(JSON.stringify(response));   
-           this.items[ci].loading = false;         
-        } else {
-          /*this.pushModal('failure', response);*/
+  // @ is an alias to /src
+  export default {
+    name: 'Home',
+    data: () => ({
+      show: false
+    }),
+    computed: {
+      ...mapGetters(['items', 'pos']),
+      posCount: function () {
+        var output = [];
+        var specificPos = this.pos.filter(p => p.id != 6);
+        console.table(specificPos);
+        for (var i in specificPos) {
+          var p = specificPos[i];
+          var ic = this.items.filter(i => i.pos_id === p.id).length;
+          var sc = this.items.filter(i => i.pos_id === p.id && i.sale_end != null).length;
+          var scol = sc > 0 ? 'green accent-4' : 'grey';
+          var uc = this.items.filter(i => i.pos_id === p.id && i.urgent === 2).length;
+          var ucol = uc > 0 ? 'red' : 'grey';
+          output.push({
+            'posId': p.id,
+            'posName': p.name,
+            'itemCount': ic,
+            'saleCount': sc,
+            'saleColor': scol,
+            'urgentCount': uc,
+            'urgentColor': ucol
+          });
         }
-      })
+        console.table(output);
+        return output;
+      },
+      posSorted: function () {
+        var sortedPos = this.posCount.slice().sort((a, b) => {
+          if (a.posId == 0) return -1;
+          if (b.posId == 0) return 1;
+          if (a.itemCount == b.itemCount) return 0;          
+          if (a.itemCount < b.itemCount)
+            return 1;
+          if (a.itemCount > b.itemCount)
+            return -1;
+          return 0;
+        });
+        console.log('SORTEDPOS: ' + JSON.stringify(sortedPos));
+        return sortedPos;
+      }
     },
-}
-}
+    methods: {
+
+    }
+  }
 </script>
