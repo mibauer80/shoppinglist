@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-tabs v-model="activeTab" centered center-active show-arrows="false" class="full-width">
+        <v-tabs v-model="activeTab" centered center-active :show-arrows="false" class="full-width">
             <v-tabs-slider color="yellow"></v-tabs-slider>
             <v-tab v-for="p in posCatItems" :key="p.posId">
                 {{ p.posName }}
@@ -15,13 +15,13 @@
                         {{cat.catTitle}}
                     </p>
                     <v-list-item-group color="primary" class="pl-0">
-                        <v-list-item v-for="(item, i) in cat.catItems" :key="i">
+                        <v-list-item v-for="(item, i) in cat.catItems" :key="i" :ripple="false">
                             <v-list-item-content class="cart-list-item justify-space-between py-0">
                                 <v-list-item-title class="mb-0">{{item.product_name}}</v-list-item-title>
                                 <v-btn x-small elevation="0" fab dark class="float-right mr-3"
                                     :color="item.deleteLoading === true ? 'white' : 'red'"
                                     :outlined="item.deleteLoading !== true" :disabled="item.deleteLoading === true"
-                                    @click="deleteItem(item.item_id, 1)">
+                                    @click="deleteConfirm(item.item_id, 1)">
                                     <v-progress-circular v-if="item.deleteLoading === true" :size="20" color="grey"
                                         indeterminate></v-progress-circular>
                                     <v-icon v-if="item.deleteLoading !== true">mdi-delete
@@ -52,9 +52,9 @@
             </v-tab-item>
         </v-tabs-items>
 
-        <v-dialog :value="modal.status">
-            <v-card>
-                <v-card-title class="headline">
+        <v-dialog :value="modal.status" persistent>
+            <v-card class="custom-modal">
+                <v-card-title>
                     {{ modal.title }}
                 </v-card-title>
                 <v-card-text>
@@ -63,11 +63,11 @@
                 <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn v-if="typeof modal.options === 'undefined' || modal.options.length === 0" small
-                        color="green white--text" @click="deleteModal()">
+                        color="primary white--text" @click="deleteModal()">
                         Abbrechen
                     </v-btn>
-                    <v-btn v-for="(o, i) in modal.options" :key="i" color="green white--text" small
-                        @click="call(o.action, o.payload)">
+                    <v-btn v-for="(o, i) in modal.options" :key="i" color="primary white--text" small
+                        @click="function_call(o.action, o.payload)">
                         {{ o.text }}
                     </v-btn>
 
@@ -80,10 +80,12 @@
 <script>
     import {
         mapGetters
-    } from 'vuex'
-    // @ is an alias to /src
+    } from 'vuex';
+    import mixins from '../../mixins/mixin.js';
+  
     export default {
         name: 'List',
+        mixins: [mixins],
         data: () => ({
             cat: undefined,
             show: false,
@@ -124,7 +126,8 @@
                     var posCats = [];
                     for (var ci in this.categories) {
                         var c = this.categories[ci];
-                        var catItems = this.items.filter(i => (i.pos_id === p.id || (i.pos_id === 0 && p.id > 0)) && i.catId === c.id);
+                        var catItems = this.items.filter(i => (i.pos_id === p.id || (i.pos_id === 0 && p.id > 0)) &&
+                            i.catId === c.id);
                         posCats.push({
                             'catId': c.id,
                             'catTitle': c.title,
@@ -139,36 +142,19 @@
                     });
 
                 }
-    
-                return output.sort(function(a, b) { return a.posId - b.posId;});
+
+                return output.sort(function (a, b) {
+                    return a.posId - b.posId;
+                });
             }
         },
         methods: {
-            deleteItem(listItemId, listId) {
-                var ci = this.items.findIndex((i) => {
-                    return i.item_id === listItemId;
-                });
-                this.items[ci].loading = true;
-                this.$store.dispatch('deleteItem', {
-                    'listItemId': listItemId,
-                    'listId': listId
-                }).then((response) => {
-                    if (/^1\d\d$/.test(response.code)) {
-                        console.log(JSON.stringify(response));
-                        this.items[ci].loading = false;
-                    } else {
-                        this.pushModal('failure', {
-                            ...response,
-                            title: 'Fehler beim Speichern'
-                        });
-                    }
-                })
-            },
+            
             cartItem(listItemId, listId, cartStatus) {
                 var ci = this.items.findIndex((i) => {
                     return i.item_id === listItemId;
                 });
-                this.items[ci].loading = true;
+                this.items[ci].cartLoading = true;
                 this.$store.dispatch('cartItem', {
                     'listItemId': listItemId,
                     'listId': listId,
@@ -185,6 +171,42 @@
                     }
                 })
             },
+             deleteConfirm(listItemId, listId) {              
+        this.pushModal('failure', {
+            status: true,
+            title: 'Artikel löschen',
+            messages: ['Eintrag von deiner Einkaufsliste entfernen?'],
+            options: [{
+                text: 'Löschen',
+                action: 'deleteItem',
+                payload: [listItemId, listId]
+            }, {
+                text: 'Abbrechen',
+                action: 'deleteModal',
+                payload: []
+            }, ]
+
+        });
+    },
+    deleteItem(listItemId, listId) {                         
+        var ci = this.items.findIndex((i) => {
+            return i.item_id === listItemId;
+        });                  
+        this.items[ci].deleteLoading = true;        
+        this.$store.dispatch('deleteItem', {
+            'listItemId': listItemId,
+            'listId': listId
+        }).then((response) => {
+            if (/^1\d\d$/.test(response.code)) {
+                console.log(JSON.stringify(response));                        
+            } else {
+                this.pushModal('failure', {
+                    ...response,
+                    title: 'Fehler beim Speichern'
+                });
+            }
+        })
+    },
 
         }
     }
@@ -208,6 +230,13 @@
         display: none !important;
     }
     .v-list--dense .v-list-item {
-min-height: 34px;
+        min-height: 34px;
     }
+    .custom-modal .v-card__title {
+        background-color:#D32F2F;
+        color:white;
+        margin-bottom: 16px;
+        padding-top: 8px!important;
+    }
+  
 </style>

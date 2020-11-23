@@ -21,8 +21,8 @@
                     </v-chip>
 </v-col>
 </v-row>
-    <v-item-group v-if="pos" v-model="posSelect" align="center" class="d-flex justify-space-between">       
-          <v-item v-for="(p, i) in pos" :key="i" v-slot="{ active, toggle }" :value="p.id" class="flex-grow-0">
+    <v-item-group v-if="specificPos" v-model="posSelect" align="center" class="d-flex justify-space-between">       
+          <v-item v-for="(p, i) in specificPos" :key="i" v-slot="{ active, toggle }" :value="p.id" class="flex-grow-0">
             <v-img :src="require('../assets/logo_pos_' + p.id + 'n.svg')" max-width="100" width="20%" aspect-ratio="1" :class="{ 'faded': !active }"
               @click="toggle">
             </v-img>
@@ -32,15 +32,12 @@
 <div class="text-subtitle-1 mt-4">
   Angebotszeitraum
   </div>
-      <v-menu            
-            v-model="dateMenu"
-            :close-on-content-click="false"
-           
-            transition="scale-transition"
-            offset-y 
-            max-width="290px"
-            min-width="290px"
-          >
+      <v-dialog
+        ref="dialog"
+        v-model="dateModal"       
+        persistent
+        width="290px"
+      >
             <template v-slot:activator="{ on }">
               <v-row no-gutters> 
         <v-col class="mr-3">
@@ -74,12 +71,20 @@
               :first-day-of-week="1"
               v-model="saleDateRange"
               no-title
-              range
-              @change="dateMenu = false"
+              range            
               :min="minSaleDate"              
-            >              
+            >      
+            <v-spacer></v-spacer>
+          <v-btn
+            small
+            block
+            color="primary"
+            @click="dateModal = false"
+          >
+            Ok
+          </v-btn>                
             </v-date-picker>
-          </v-menu>
+          </v-dialog>
 
     <v-container align="center">
       <v-row justify="center" no-gutters>
@@ -178,7 +183,7 @@
             @click="deleteModal()">
             Abbrechen
           </v-btn>
-          <v-btn v-for="(o, i) in modal.options" :key="i" color="green white--text" small @click="call(o.action, o.payload)">
+          <v-btn v-for="(o, i) in modal.options" :key="i" color="green white--text" small @click="function_call(o.action, o.payload)">
             {{ o.text }}
           </v-btn>
 
@@ -203,8 +208,10 @@
   import {
     mapGetters
   } from 'vuex'
-
+    import mixins from '../../mixins/mixin.js';
+    
   export default {
+    mixins: [mixins],
     data: () => ({
       quantity: 1,
       productNameInput: 'Produkt eingeben',
@@ -226,6 +233,7 @@
         content: [],
         options: [],
       },
+      dateModal: false,
       urgents: [{
           id: 0,
           iconName: 'help-circle-outline',
@@ -242,6 +250,9 @@
 
     computed: {
       ...mapGetters(['products', 'items', 'categories', 'productsCombo', 'pos']),
+      specificPos() {
+        return this.pos.filter(i => i.id > 0);
+      },
       urgentData() {
         return typeof this.urgentSelect === 'undefined' ? 1 : this.urgentSelect
       },
@@ -259,9 +270,6 @@
       }
     },
     methods: {
-      call(method, args = []) {
-        this[method](...args);
-      },
       adjustQuantity(amount) {
         var r = this.quantity + Number(amount);
         if (r > 0  && r <= 20) {
