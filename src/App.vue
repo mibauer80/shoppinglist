@@ -10,7 +10,8 @@
       </div>
 
       <v-btn to="/">Home</v-btn>
-      <!--<v-btn to="/about">About</v-btn>-->
+      <v-btn to="/add">Add</v-btn>
+      <v-btn to="/list">List</v-btn>
 
       <v-spacer></v-spacer>
 

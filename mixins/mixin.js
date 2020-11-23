@@ -24,6 +24,7 @@ const mixins = {
       },
       deleteModal() {
         this.loading_itemSubmit = false;
+        this.modalActionLoading = false;
         this.modal.status = false,
           this.modal.title = undefined,
           this.modal.text = [],
