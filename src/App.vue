@@ -1,24 +1,14 @@
 <template>
   <v-app>
     <v-app-bar app color="primary" dark>
-      <div class="d-flex align-center">
-        <v-img alt="Vuetify Logo" class="shrink mr-2" contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png" transition="scale-transition" width="40" />
-
-        <v-img alt="Vuetify Name" class="shrink mt-1 hidden-sm-and-down" contain min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png" width="100" />
+      <div class="d-flex align-center mr-2">
+        <v-img alt="Shopping List Logo" class="shrink mr-2" contain
+          :src="require('@/assets/app-logo.png')" transition="scale-transition" width="40" />        
       </div>
 
-      <v-btn to="/">Home</v-btn>
-      <v-btn to="/add">Add</v-btn>
-      <v-btn to="/list">List</v-btn>
-
-      <v-spacer></v-spacer>
-
-      <v-btn href="https://github.com/vuetifyjs/vuetify/releases/latest" target="_blank" text>
-        <span class="mr-2">{{ this.$route.query.posId}}</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
+      <v-btn text to="/" class="mx-2">Home</v-btn>
+      <v-btn text to="/add" class="mx-2">Add</v-btn>
+      <v-btn text to="/list" class="mx-2">List</v-btn>  
 
     </v-app-bar>
 
@@ -70,7 +60,22 @@
       display: none;
     }
   }
-
+  .custom-modal .v-card__title {       
+        margin-bottom: 16px;
+        padding-top: 8px !important;
+    }
+    .custom-card-title--error {
+      color:#FFF;
+      background-color: #FF5252
+    }
+     .custom-card-title--confirm {
+      color:#FFF;
+      background-color:#FFA000
+    }
+   .custom-card-title--default {
+      color:#FFF;
+      background-color:#0288D1
+    }    
   .chip-text-responsive {
     margin-right: 8px
   }  

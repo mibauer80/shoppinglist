@@ -18,13 +18,16 @@ export default new Vuex.Store({
             state.products = payload;
         },
         UPDATE_ITEMS(state, payload) {
-            state.items = payload.map(obj=> ({ ...obj, cartLoading: false, deleteLoading: false}))
+            console.log('UPDATE_ITEMS ' + JSON.stringify(payload));
+            state.items = payload.map(obj=> ({ ...obj, cartLoading: false, deleteLoading: false, show: true}))
         },
         UPDATE_POS(state, payload) {
             state.pos = payload;
         },
         UPDATE_CATEGORIES(state, payload) {
-            state.categories = payload;
+            state.categories = payload.sort(function (a, b) {
+                return a.id - b.id;
+            });
         },
     },
     actions: {
@@ -63,7 +66,7 @@ export default new Vuex.Store({
         addItem({          
             dispatch
         }, payload) {
-            console.log('axios: ' + JSON.stringify(payload));
+            console.log('axios addItems: ' + JSON.stringify(payload));
             return new Promise((resolve, reject) => {
                 axios.post('https://proven-aviary-293214.ey.r.appspot.com/items/insert', payload).then(response => {
                     if (/^1\d\d$/.test(response.data.code)) {
@@ -83,6 +86,7 @@ export default new Vuex.Store({
         updateItem({            
             dispatch
         }, payload) {
+            console.log('axios updateItems: ' + JSON.stringify(payload));
             return new Promise((resolve, reject) => {
                 axios.post('https://proven-aviary-293214.ey.r.appspot.com/items/update', payload).then((response) => {
                     if (/^1\d\d$/.test(response.data.code)) {
@@ -102,7 +106,7 @@ export default new Vuex.Store({
         cartItem({            
             dispatch
         }, payload) {
-            console.log('axios: ' + JSON.stringify(payload));
+            console.log('axios cartItems: ' + JSON.stringify(payload));
             return new Promise((resolve, reject) => {
                 axios.post('https://proven-aviary-293214.ey.r.appspot.com/items/cart', payload).then((response) => {
                     if (/^1\d\d$/.test(response.data.code)) {                       
@@ -119,7 +123,7 @@ export default new Vuex.Store({
         deleteItem({            
             dispatch
         }, payload) {
-            console.log('axios: ' + JSON.stringify(payload));
+            console.log('axios: deleteItems' + JSON.stringify(payload));
             return new Promise((resolve, reject) => {
                 axios.post('https://proven-aviary-293214.ey.r.appspot.com/items/delete', payload).then((response) => {
                     if (/^1\d\d$/.test(response.data.code)) {                       
@@ -136,7 +140,7 @@ export default new Vuex.Store({
         checkoutItems({            
             dispatch
         }, payload) {
-            console.log('axios: ' + JSON.stringify(payload));
+            console.log('axios: checkoutItems' + JSON.stringify(payload));
             return new Promise((resolve, reject) => {
                 axios.post('https://proven-aviary-293214.ey.r.appspot.com/items/checkout', payload).then((response) => {
                     if (/^1\d\d$/.test(response.data.code)) {                       
