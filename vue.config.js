@@ -4,8 +4,8 @@ module.exports = {
   ],
   pwa: {
     name: 'Shopping List',
-    themeColor: '#1976d2',
-    msTileColor: '#1976d2',
+    themeColor: '#FFFFFF',
+    msTileColor: '#FFFFFF',
     appleMobileWebAppCapable: 'yes',
     appleMobileWebAppStatusBarStyle: 'black',
 
