@@ -1,6 +1,6 @@
 const mixins = {
     methods: {
-      function_call(method, args = []) {
+      function_call(method, args=[]) {      
         this[method](...args);
       },
       pushAlert(type, content) {
@@ -16,15 +16,23 @@ const mixins = {
           this.alert.type = undefined,
           this.alert.content = [];
       },
-      pushModal(type, content) {
+      pushModal(content) {
+        this.modal.modalActionLoading = false;
         this.modal.status = true,
-          this.modal.title = content.title,
+        this.modal.type = content.type || 'default',
+          this.modal.title = content.title || 'Fehler',
           this.modal.text = content.messages,
           this.modal.options = content.options
       },
-      deleteModal() {
+      deleteModal(args = []) {    
+        if ('listItemId' in args) {
+          var ci = this.items.findIndex((i) => {
+            return i.item_id === args.listItemId;
+        });           
+        this.items[ci].deleteLoading = false;
+      }
         this.loading_itemSubmit = false;
-        this.modalActionLoading = false;
+        this.modal.modalActionLoading = false;
         this.modal.status = false,
           this.modal.title = undefined,
           this.modal.text = [],

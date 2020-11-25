@@ -92,15 +92,14 @@
       </v-col>
     </v-row>
 
-    <v-btn color="primary" class="mt-4"
+    <v-btn color="primary" class="mt-4 btn-fixed-bottom"
       :disabled="typeof productNameInput === 'undefined' || typeof category === 'undefined' || loading_itemSubmit === true"
-      :loading="loading_itemSubmit" elevation="2" large block
-       style="margin-top:calc(20vh - 120px)!important"
+      :loading="loading_itemSubmit" elevation="2" large
       @click="addItem(productNameInput.text || productNameInput, category, quantity, posSelect, urgentData, saleDateStart, saleDateEnd)">
       Eintragen
     </v-btn>     
 
-    <v-snackbar v-model="alert.status" timeout="5000" :centered="true" :absolute="true" color="success">
+    <v-snackbar v-model="alert.status" timeout="5000" centered color="success">
       <span v-for="c in alert.content" :key="c.index">
         {{ c }}
       </span>
@@ -113,20 +112,21 @@
     </v-snackbar>
 
     <v-dialog :value="modal.status">
-      <v-card>
-        <v-card-title class="headline">
+      <v-card class="custom-modal">
+        <v-card-title :class="'custom-card-title--' + modal.type">
           {{ modal.title }}
         </v-card-title>
         <v-card-text>
           <p v-for="(t, i) in modal.text" :key="i" v-html="t"></p>
         </v-card-text>
-        <v-card-actions>
+        <v-card-actions class="px-6 pb-4">
           <v-spacer></v-spacer>
-          <v-btn v-if="typeof modal.options === 'undefined' || modal.options.length === 0" small
-            color="primary white--text" @click="deleteModal()">
+          <v-btn small
+            color="deep-orange darken-1 white--text" @click="deleteModal()">
             Abbrechen
           </v-btn>
-          <v-btn v-for="(o, i) in modal.options" :key="i" color="primary white--text" small 
+          <v-btn v-for="(o, i) in modal.options" :key="i" color="success white--text" small
+          :loading="modal.modalActionLoading"
             @click="function_call(o.action, o.payload)">
             {{ o.text }}
           </v-btn>
@@ -143,6 +143,11 @@
   .faded {
     opacity: 0.35;
     filter: grayscale(100%);
+  }
+  .btn-fixed-bottom {
+    position: fixed;
+    width: calc(100vw - 24px);
+    bottom: 16px;
   }
 </style>
 
@@ -167,13 +172,14 @@
       alert: {
         status: false,
         type: undefined,
-        content: []
+        content: [],
       },
       modal: {
         status: false,
-        type: undefined,
+        type: 'default',
         content: [],
         options: [],
+        modalActionLoading: false,
       },
       dateModal: false,
       urgents: [{
@@ -211,7 +217,7 @@
         return new Date().toISOString().slice(0, 10);
       }
     },
-    methods: {
+    methods: {    
       adjustQuantity(amount) {
         var r = this.quantity + Number(amount);
         if (r > 0 && r <= 20) {
@@ -242,9 +248,8 @@
             this.urgentSelect = undefined;
             this.saleDateRange = [];
           } else {
-            this.pushModal('failure', {
-              ...response,
-              title: 'Fehler beim Speichern'
+            this.pushModal({
+              ...response,             
             });
           }
         })
@@ -267,6 +272,7 @@
         console.log('selectedCatName: ' + this.selectedCatName);
       },
       updateItem(listItemId, listId, quantity, posId, urgent, saleStart, saleEnd) {
+        this.modal.modalActionLoading = true;
         this.$store.dispatch('updateItem', {
           'listItemId': listItemId,
           'listId': listId,
@@ -276,6 +282,7 @@
           'saleStart': saleStart,
           'saleEnd': saleEnd
         }).then((response) => {
+          this.modal.modalActionLoading = false;
           console.log(JSON.stringify(response));
           if (response.resetForm === true) {
             this.loading_itemSubmit = false;
@@ -288,13 +295,29 @@
             this.urgentSelect = undefined;
             this.saleDateRange = [];
           } else {
-            this.pushModal('failure', {
-              ...response,
-              title: 'Fehler beim Speichern'
+            this.pushModal({
+              ...response,           
             });
           }
         })
       },
+      deleteItem(listItemId, listId) {                            
+                this.modal.modalActionLoading = true;
+                this.$store.dispatch('deleteItem', {
+                    'listItemId': listItemId,
+                    'listId': listId
+                }).then((response) => {       
+                                        this.modal.modalActionLoading = false;
+                    if (/^1\d\d$/.test(response.code)) {                       
+                        this.deleteModal();
+                        this.pushAlert('success', response.messages);
+                    } else {
+                        this.pushModal({
+                            ...response,                        
+                        });
+                    }
+                })
+            },
       checkDatePos() {
         if (typeof this.posSelect === 'undefined') {
           this.saleDateRange = [];

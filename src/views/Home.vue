@@ -30,8 +30,7 @@
                 </v-card-text>
 
                 <v-card-actions class="ma-2">
-                  <v-btn :disabled="ps.itemCount===0" color="primary">
-
+                  <v-btn :to="'/list?posid=' + ps.posId" :disabled="ps.itemCount===0" color="primary">
                     Einkaufszettel
                     <v-icon right>
                       mdi-format-list-bulleted
