@@ -6,7 +6,7 @@
           <v-card>
             <div class="d-flex flex-no-wrap justify-space-between">
               <div>
-                <v-card-title class="headline pt-1 pb-1" v-text="ps.posName"></v-card-title>
+                <v-card-title class="headline pb-1" v-text="ps.posName"></v-card-title>
                 <v-card-text class="pb-0 pr-0">
                   <v-chip class="mr-2 my-2 pa-2" label color="primary" outlined>
                     <v-icon class="mr-2">
@@ -62,6 +62,9 @@
     data: () => ({
       show: false
     }),
+    created() {    
+      this.$store.dispatch('getItems');
+    },
     computed: {
       ...mapGetters(['items', 'pos']),
       posCount: function () {
@@ -108,3 +111,9 @@
     }
   }
 </script>
+<style scoped>
+.v-card__title.headline {
+  font-size:1.33rem!important;
+  padding-top:6px;
+}
+</style>

@@ -145,7 +145,7 @@
     filter: grayscale(100%);
   }
   .btn-fixed-bottom {
-    position: fixed;
+    position: absolute;
     width: calc(100vw - 24px);
     bottom: 16px;
   }
@@ -159,6 +159,10 @@
 
   export default {
     mixins: [mixins],
+    created() {
+      this.$store.dispatch('getProducts');
+      this.$store.dispatch('getItems');
+    },
     data: () => ({
       quantity: 1,
       productNameInput: undefined,
@@ -189,8 +193,8 @@
         },
         {
           id: 2,
-          iconName: 'home-alert',
-          chipClass: 'deep-orange darken-1 white--text'
+          iconName: 'fridge-alert-outline',
+          chipClass: 'deep-orange white--text'
         },
       ]
     }),
@@ -301,16 +305,14 @@
           }
         })
       },
-      deleteItem(listItemId, listId) {                            
+      deleteItem(deleteListItemId, deleteListId, product, catId, quantity, posId, urgent, saleStart, saleEnd, force) {                            
                 this.modal.modalActionLoading = true;
                 this.$store.dispatch('deleteItem', {
-                    'listItemId': listItemId,
-                    'listId': listId
-                }).then((response) => {       
-                                        this.modal.modalActionLoading = false;
+                    'listItemId': deleteListItemId,
+                    'listId': deleteListId
+                }).then((response) => {                                        
                     if (/^1\d\d$/.test(response.code)) {                       
-                        this.deleteModal();
-                        this.pushAlert('success', response.messages);
+                        this.addItem(product, catId, quantity, posId, urgent, saleStart, saleEnd, force)
                     } else {
                         this.pushModal({
                             ...response,                        

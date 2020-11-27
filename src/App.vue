@@ -55,6 +55,10 @@
     text-align: center
   }
 
+  .v-btn.v-size--small {
+    text-transform: none!important;
+  }
+
   @media (max-width: 600px){
     .chip-text-responsive {
       display: none;
