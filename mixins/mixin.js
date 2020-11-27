@@ -24,13 +24,8 @@ const mixins = {
           this.modal.text = content.messages,
           this.modal.options = content.options
       },
-      deleteModal(args = []) {    
-        if ('listItemId' in args) {
-          var ci = this.items.findIndex((i) => {
-            return i.item_id === args.listItemId;
-        });           
-        this.items[ci].deleteLoading = false;
-      }
+      deleteModal() {      
+      this.items.forEach((i)=>{i.deleteLoading = false;}); 
         this.loading_itemSubmit = false;
         this.modal.modalActionLoading = false;
         this.modal.status = false,
@@ -38,11 +33,12 @@ const mixins = {
           this.modal.text = [],
           this.modal.options = []
       },   
-      germanDate(dateString) {
+      germanDate(dateString, format) {
         if (typeof dateString !== 'undefined' && dateString != null) {
         var c = dateString.split('-');
         var monthNames = ['Jan', 'Feb', 'Mrz', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
-        return c[2] + '. ' + monthNames[Number(c[1])-1] + ' ' + c[0];
+        var year = format !== 'short' ? ' ' + c[0] : '';
+        return c[2] + '. ' + monthNames[Number(c[1])-1] + year;
         } else {
           return '';
         }

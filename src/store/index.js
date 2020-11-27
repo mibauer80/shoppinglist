@@ -22,7 +22,9 @@ export default new Vuex.Store({
             state.items = payload.map(obj=> ({ ...obj, cartLoading: false, deleteLoading: false, show: true}))
         },
         UPDATE_POS(state, payload) {
-            state.pos = payload;
+            state.pos = payload.sort(function (a, b) {
+                return a.id - b.id;
+            });
         },
         UPDATE_CATEGORIES(state, payload) {
             state.categories = payload.sort(function (a, b) {
