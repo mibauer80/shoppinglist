@@ -149,6 +149,9 @@
     width: calc(100vw - 24px);
     bottom: 16px;
   }
+  .v-chip--active .v-icon {
+    color:inherit!important;
+  }
 </style>
 
 <script>
