@@ -15,38 +15,44 @@
                     Keine Einträge
                 </v-alert>
                 <v-list v-else v-for="(cat, i) in p.posCats" :key="i" flat dense class="cart-list">
-                    <p class="h5 mt-2 mb-1 ml-10" style="font-weight:500;">
+                    <p class="h5 mt-1 mb-1" style="font-weight:500;">
                         {{cat.catTitle}}
                     </p>
                     <v-list-item-group color="primary" class="pl-0">
                         <v-list-item v-for="(item, i) in cat.catItems" :key="i" :ripple="false" v-show="item.show">
                             <v-list-item-content class="justify-flex-start py-0">
-                                <v-list-item-title class="mb-0 ml-2 mr-1">
+                                <v-list-item-title class="mb-0 mx-0">
                                     <div class="cart-quantity">{{item.quantity}}x
                                     </div>
-                                    <div>{{item.product_name}}</div>
+                                    <div>
+                                        {{item.product_name}}
+
+                                        <v-icon v-if="item.urgent === 2 || item.urgent === 0"
+                                        class="cart-list-icon"
+                                            :color="urgentColor(item.urgent)">
+                                            {{ urgentIcon(item.urgent) }}
+                                        </v-icon>
+                                        <v-tooltip bottom v-if="onSale(item.sale_start, item.sale_end) > 0"
+                                            open-on-click>
+                                            <template v-slot:activator="{ on, attrs }">
+                                                <v-icon class="cart-list-icon" :color="onSale(item.sale_start, item.sale_end) === 1 ? 'green accent-4' : 'grey'" dark v-bind="attrs" v-on="on"
+                                                    style="padding-left:4px;">
+                                                    mdi-sale
+                                                </v-icon>
+                                            </template>
+                                            <span>Im Angebot
+                                                vom<br>{{ germanDate(item.sale_start.slice(0, 10), 'short') }}
+                                                bis {{ germanDate(item.sale_end.slice(0, 10), 'short') }}</span>
+                                        </v-tooltip>
+
+                                    </div>
                                 </v-list-item-title>
-                                <div class="cart-item-icons">
 
-                                    <v-tooltip bottom v-if="onSale(item.sale_start, item.sale_end)" open-on-click
-                                        close-delay="3000">
-                                        <template v-slot:activator="{ on, attrs }">
-                                            <v-icon color="green accent-4" dark v-bind="attrs" v-on="on">
-                                                mdi-sale
-                                            </v-icon>
-                                        </template>
-                                        <span>Im Angebot vom<br>{{ germanDate(item.sale_start.slice(0, 10), 'short') }}
-                                            bis {{ germanDate(item.sale_end.slice(0, 10), 'short') }}</span>
-                                    </v-tooltip>
-                                    <span v-else></span>
 
-                                    <v-icon v-if="item.urgent === 2 || item.urgent === 0"
-                                        :color="urgentColor(item.urgent)">
-                                        {{ urgentIcon(item.urgent) }}
-                                    </v-icon>
-                                    <span v-else></span>
 
-                                </div>
+
+
+
                             </v-list-item-content>
                             <v-list-item-action>
                                 <v-btn x-small elevation="0" fab dark
@@ -59,9 +65,7 @@
                                     <v-icon v-if="item.deleteLoading !== true">mdi-delete
                                     </v-icon>
                                 </v-btn>
-
-
-
+                                <span v-else></span>
                                 <v-btn x-small elevation="0" fab dark
                                     :color="item.cartLoading === true ? 'white' : item.cart_status === 1 ? 'green' : 'primary'"
                                     :outlined="item.cartLoading !== true && item.cart_status === 1"
@@ -69,7 +73,6 @@
                                     @click="cartItem(item.item_id, 1, item.cart_status === 1 ? 0: 1)">
                                     <v-progress-circular v-if="item.cartLoading === true" :size="20" color="grey"
                                         indeterminate></v-progress-circular>
-
                                     <v-icon v-if="item.cart_status === 1 && item.cartLoading !== true">mdi-check-bold
                                     </v-icon>
                                     <v-icon v-if="item.cart_status !== 1 && item.cartLoading !== true">
@@ -138,9 +141,9 @@
     export default {
         name: 'List',
         mixins: [mixins],
-            created() {
-      this.$store.dispatch('getItems');
-    },
+        created() {
+            this.$store.dispatch('getItems');
+        },
         data: () => ({
             cat: undefined,
             show: false,
@@ -220,12 +223,14 @@
         },
         methods: {
             onSale(start, end) {
+                var output = 0
                 var today = new Date().toISOString().slice(0, 10);
-                if (String(start) === 'null' || String(end) === 'null') {
-                    return false;
-                } else {
-                    return start.slice(0, 10) <= today && end.slice(0, 10) >= today
+                if (String(start) !== 'null' && String(end) !== 'null') {
+                    if (end.slice(0, 10) >= today) {
+                        output = start.slice(0, 10) <= today ? 1 : 2;
+                    }
                 }
+                return output;
             },
             urgentIcon(urgent) {
                 return urgent === 2 ? 'mdi-fridge-alert-outline' : urgent === 0 ? 'mdi-help-circle-outline' : undefined;
@@ -331,7 +336,7 @@
 
 <style>
     .cart-list .v-list-item {
-        padding: 0 8px 0 0 !important;
+        padding: 0 0px 0 0 !important;
 
     }
 
@@ -358,20 +363,9 @@
         font-weight: 400 !important;
     }
 
-
-
     .cart-list .v-list-item__title div {
         flex: 1;
         min-width: 0;
-    }
-
-
-    .cart-list .cart-item-icons {
-        display: flex;
-        flex: 0 0 auto;
-        width: 52px;
-        justify-content: space-between;
-        flex-wrap: nowrap;
     }
 
     .cart-list .v-list-item-group.primary--text {
@@ -383,9 +377,13 @@
     }
 
     .cart-quantity {
-        flex: 0 0 32px !important;
+        flex: 0 0 24px !important;
     }
-
+ @media (max-width: 400px){
+    .cart-list-icon {
+        font-size:16px!important;
+    }
+ }
     .v-slide-group__prev--disabled {
         display: none !important;
     }
@@ -403,7 +401,7 @@
     .checkoutListButton {
         position: fixed;
         left: 8px;
-        top: 110px;
+        top: 108px;
     }
 
     .pos-tabs {
