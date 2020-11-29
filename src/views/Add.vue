@@ -4,7 +4,7 @@
     <v-combobox v-if="productsCombo" :items="productsCombo" v-model="productNameInput" autofocus auto-select-first
       label="Produktbezeichnung" @change="selectCatByProd(productNameInput.value)"
       menu-prop="{ 'closeOnClick': true, 'disableKeys': false, transition: 'slide-y-transition', y-offset: true }"
-       ref="productInput"
+       ref="productInput"       
       @keyup.enter="comboEnter"
       >
     </v-combobox>
@@ -176,6 +176,7 @@
       dateMenu: false,
       saleDateRange: [],
       loading_itemSubmit: false,
+    
       alert: {
         status: false,
         type: undefined,
