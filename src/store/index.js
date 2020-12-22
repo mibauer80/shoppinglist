@@ -147,6 +147,13 @@ export default new Vuex.Store({
                 axios.post('https://proven-aviary-293214.ey.r.appspot.com/items/checkout', payload).then((response) => {
                     if (/^1\d\d$/.test(response.data.code)) {                       
                         dispatch('getItems');
+                        var msg = new SpeechSynthesisUtterance();
+	msg.text = 'Dein Einkauf wurde ausgecheckt';
+	msg.lang = 'de-DE';
+	msg.volume = 1; // 0 to 1
+	msg.rate = 1; // 0.1 to 10
+	msg.pitch = 2; //0 to 2
+	speechSynthesis.speak(msg); 
                         }                 
                     resolve({
                         ...response.data,                       
