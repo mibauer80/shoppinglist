@@ -152,7 +152,7 @@ export default new Vuex.Store({
 	msg.lang = 'de-DE';
 	msg.volume = 1; // 0 to 1
 	msg.rate = 1; // 0.1 to 10
-	msg.pitch = 2; //0 to 2
+	msg.pitch = 1; //0 to 2
 	speechSynthesis.speak(msg); 
                         }                 
                     resolve({
